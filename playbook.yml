@@ -1,0 +1,33 @@
+---
+- name: Install Apache on web servers
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Update the apt package manager (for Ubuntu/Debian systems)
+      apt:
+        update_cache: yes
+
+    - name: Install Apache
+      apt:
+        name: apache2
+        state: present
+
+    - name: Start and enable Apache service
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+
+    - name: Ensure the firewall allows HTTP traffic (for Ubuntu/Debian systems)
+      ufw:
+        rule: allow
+        name: 'Apache Full'
+
+    - name: Verify Apache is installed and running
+      command: systemctl status apache2
+      register: apache_status
+
+    - name: Print Apache status
+      debug:
+        var: apache_status.stdout_lines
